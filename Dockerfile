@@ -1,16 +1,9 @@
-FROM alpine:3.6
+FROM golang:alpine
 
-LABEL maintainer="We ahead <docker@weahead.se>"
+LABEL maintainer="Jack Tomaszewski <jacek.tomaszewski@ailo.io>"
 
-ENV RANCHER_CLI_VERSION="0.6.3"
+RUN apk add --no-cache git make bash curl docker-cli
 
-RUN apk --no-cache add --virtual build-deps curl \
-  && curl -L "https://releases.rancher.com/cli/v${RANCHER_CLI_VERSION}/binaries/linux-amd64/rancher.xz" | xzcat - > /usr/local/bin/rancher \
-  && chmod +x /usr/local/bin/rancher \
-  && apk del build-deps \
-  && apk --no-cache add openssl ca-certificates \
-  && update-ca-certificates
+RUN git clone https://github.com/rancher/cli.git rancher-cli && cd rancher-cli && git checkout v0.6.14
 
-WORKDIR /data
-
-ENTRYPOINT [ "/usr/local/bin/rancher" ]
+CMD cd rancher-cli && make
